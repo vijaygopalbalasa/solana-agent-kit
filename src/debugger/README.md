@@ -1,16 +1,27 @@
-A comprehensive debugging system for AI agents interacting with Solana protocols. This debugger provides real-time monitoring, event tracking, and state management capabilities crucial for developing and maintaining reliable AI agents.
-Features
+# AI Agent Debugger for Solana 🔍
 
-🔍 Real-time Monitoring: Track all AI agent actions as they happen
-📝 Event Logging: Detailed history of all operations and their outcomes
-📸 State Snapshots: Create and restore agent states for debugging
-❌ Error Tracking: Comprehensive error capture and analysis
-🧪 Type Safety: Full TypeScript support with extensive type definitions
+> A comprehensive debugging system for AI agents interacting with Solana protocols.
 
-Installation
-bashCopynpm install solana-agent-kit
-Quick Start
-typescriptCopyimport { AgentDebugger } from 'solana-agent-kit';
+## 🚀 Features
+
+* **Real-time Monitoring**: Track all AI agent actions as they happen
+* **Event Logging**: Detailed history of all operations and their outcomes
+* **State Snapshots**: Create and restore agent states for debugging
+* **Error Tracking**: Comprehensive error capture and analysis
+* **Type Safety**: Full TypeScript support with extensive type definitions
+
+## 📦 Installation
+
+```bash
+npm install solana-agent-kit
+```
+
+## 🛠️ Quick Start
+
+Here's a simple example of how to use the debugger:
+
+```typescript
+import { AgentDebugger } from 'solana-agent-kit';
 
 // Initialize debugger
 const debugger = new AgentDebugger({
@@ -25,7 +36,8 @@ debugger.attachToAgent(yourAgent);
 // Monitor operations
 try {
     // Create state snapshot
-    debugger.createSnapshot('pre-operation');
+    const snapshot = debugger.createSnapshot('pre-operation');
+    console.log(`Created snapshot: ${snapshot.id}`);
     
     // Execute agent operations
     await yourAgent.performOperation();
@@ -42,10 +54,14 @@ try {
     // Restore to previous state
     debugger.restoreSnapshot('pre-operation');
 }
-Key Components
-AgentDebugger
-Main debugging class with the following key methods:
-typescriptCopyclass AgentDebugger {
+```
+
+## 📚 Key Components
+
+### AgentDebugger Class
+
+```typescript
+class AgentDebugger {
     // Attach to an AI agent
     attachToAgent(agent: any): void;
     
@@ -58,49 +74,76 @@ typescriptCopyclass AgentDebugger {
     // Restore previous state
     restoreSnapshot(snapshotId: string): boolean;
 }
-Event Types
-The debugger tracks different types of events:
-typescriptCopyinterface DebugEvent {
+```
+
+### Event Types
+
+```typescript
+interface DebugEvent {
     type: 'action' | 'state' | 'error';
     data: any;
     timestamp: number;
 }
-State Snapshots
-Create and manage agent states:
-typescriptCopyinterface DebugSnapshot {
+```
+
+### State Snapshots
+
+```typescript
+interface DebugSnapshot {
     id: string;
     timestamp: number;
     state: AgentState;
     description: string | undefined;
 }
-Advanced Usage
-Filtering Events
-typescriptCopy// Get events within a time range
+```
+
+## 🔍 Advanced Usage
+
+### Filtering Events
+
+```typescript
+// Get events from the last hour
 const recentEvents = debugger.getHistory(
-    Date.now() - 3600000,  // Last hour
+    Date.now() - 3600000,
     Date.now()
 );
 
-// Filter error events
+// Find error events
 const errors = recentEvents.filter(e => e.type === 'error');
-State Management
-typescriptCopy// Create multiple snapshots
+```
+
+### State Management
+
+```typescript
+// Create checkpoints
 debugger.createSnapshot('before-trade');
 await agent.executeTrade();
 debugger.createSnapshot('after-trade');
 
-// Restore specific state
+// Restore to specific checkpoint
 debugger.restoreSnapshot('before-trade');
-Testing
+```
+
+## 🧪 Testing
+
 Run the test suite:
-bashCopynpm run test:jest
-Contributing
 
-Fork the repository
-Create your feature branch
-Add your changes
-Run tests
-Submit a pull request
+```bash
+npm run test:jest
+```
 
-License
-Apache-2 License
+Expected output:
+```
+PASS  src/debugger/__tests__/AgentDebugger.test.ts
+  AgentDebugger
+    ✓ should attach to agent successfully
+    ✓ should capture successful actions
+    ✓ should capture action errors
+    ✓ should create and restore snapshots
+```
+
+## 🙏 Acknowledgments
+
+* Solana Foundation
+* SendAI Team
+* Contributors to the Solana AI Agent Kit
