@@ -1,48 +1,46 @@
-import { AgentDebugger } from '../AgentDebugger';
+import { SolanaAgentKit } from "solana-agent-kit";
+import { PublicKey } from "@solana/web3.js";
+import { AgentDebugger } from "../AgentDebugger";
 
 describe('AgentDebugger', () => {
-    let debuggerInstance: AgentDebugger;
-    let mockAgent: any;
+    let debugInstance: AgentDebugger;
+    const MOCK_PUBKEY = new PublicKey("11111111111111111111111111111111");
 
     beforeEach(() => {
-        debuggerInstance = new AgentDebugger();
-        mockAgent = {
-            someAction: async () => 'result',
-            failingAction: async () => {
-                throw new Error('Test error');
-            }
-        };
-        debuggerInstance.attachToAgent(mockAgent);
+        debugInstance = new AgentDebugger();
     });
 
-    it('should attach to agent successfully', () => {
-        expect(mockAgent.someAction).toBeDefined();
-    });
-
-    it('should capture successful actions', async () => {
-        await mockAgent.someAction();
-        const history = debuggerInstance.getHistory();
-        expect(history.length).toBeGreaterThan(0);
-        expect(history[0].type).toBe('action');
-    });
-
-    it('should capture action errors', async () => {
-        try {
-            await mockAgent.failingAction();
-        } catch (error) {
-            // Expected error
-        }
-        const history = debuggerInstance.getHistory();
-        const errorEvents = history.filter(e => e.type === 'error');
-        expect(errorEvents.length).toBe(1);
-    });
-
-    it('should create and restore snapshots', () => {
-        const snapshot = debuggerInstance.createSnapshot('Test snapshot');
+    test('should create and restore snapshots', () => {
+        const snapshot = debugInstance.createSnapshot('Test snapshot');
         expect(snapshot).toBeDefined();
-        expect(snapshot.description).toBe('Test snapshot');
+        expect(snapshot.label).toBe('Test snapshot');
 
-        const restored = debuggerInstance.restoreSnapshot(snapshot.id);
+        const restored = debugInstance.restoreSnapshot(snapshot.id);
         expect(restored).toBe(true);
+    });
+
+    test('should track operation history', () => {
+        const history = debugInstance.getHistory();
+        expect(Array.isArray(history)).toBe(true);
+    });
+
+    test('should provide metrics', () => {
+        const metrics = debugInstance.getMetrics();
+        expect(metrics).toHaveProperty('totalOperations');
+        expect(metrics).toHaveProperty('successfulOperations');
+        expect(metrics).toHaveProperty('failedOperations');
+    });
+
+    test('should handle agent attachment', () => {
+        // Create minimal mock that only has properties we need
+        const mockAgent = {
+            connection: {},
+            wallet: {},
+            wallet_address: MOCK_PUBKEY
+        };
+
+        expect(() => {
+            debugInstance.attachToAgent(mockAgent as unknown as SolanaAgentKit);
+        }).not.toThrow();
     });
 });

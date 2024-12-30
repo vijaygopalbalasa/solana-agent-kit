@@ -1,35 +1,77 @@
+import { SolanaAgentKit } from "solana-agent-kit";
+import { PublicKey } from "@solana/web3.js";
+
+/**
+ * Debugger configuration options
+ */
 export interface DebuggerConfig {
     enabled: boolean;
     logLevel: 'debug' | 'info' | 'warn' | 'error';
     captureStackTrace: boolean;
 }
 
-export interface AgentAction {
+/**
+ * Methods available in SolanaAgentKit that we can monitor
+ */
+export type MonitoredMethods =
+    | 'deployToken'
+    | 'deployCollection'
+    | 'mintNFT'
+    | 'transfer'
+    | 'requestFaucetFunds'
+    | 'getBalance'
+    | 'trade'
+    | 'stake'
+    | 'sendCompressedAirdrop'
+    | 'createOrcaSingleSidedWhirlpool';
+
+/**
+ * Represents a single Solana operation
+ */
+export interface SolanaOperation {
     id: string;
-    type: string;
-    timestamp: number;
-    data: any;
-    status: 'pending' | 'success' | 'error';
-    duration?: number;
+    methodName: MonitoredMethods;
+    args: any[];
+    result?: any;
     error?: Error;
+    startTime: number;
+    endTime?: number;
+    status: 'pending' | 'success' | 'error';
 }
 
-export interface AgentState {
-    actions: AgentAction[];
-    currentStatus: 'idle' | 'processing' | 'error';
-    lastAction?: AgentAction;
-    memory: Record<string, any>;
+/**
+ * Current state of the debugger
+ */
+export interface DebuggerState {
+    lastOperation?: SolanaOperation | undefined;
+    operationHistory: SolanaOperation[];
+    metrics: {
+        totalOperations: number;
+        successfulOperations: number;
+        failedOperations: number;
+        averageOperationTime?: number | undefined;
+    };
 }
 
-export interface DebugSnapshot {
+/**
+ * Debug event interface
+ */
+export interface DebugEvent {
+    id: string;
+    type: 'operation-start' | 'operation-end' | 'error';
+    data: {
+        operation?: SolanaOperation | undefined;
+        error?: Error | undefined;
+    };
+    timestamp: number;
+}
+
+/**
+ * State snapshot for debugging
+ */
+export interface StateSnapshot {
     id: string;
     timestamp: number;
-    state: AgentState;
-    description: string | undefined;
-}
-
-export interface DebugEvent {
-    type: 'action' | 'state' | 'error';
-    data: any;
-    timestamp: number;
+    state: DebuggerState;
+    label?: string | undefined;
 }
